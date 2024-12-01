@@ -7,25 +7,25 @@ import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
 
 public class Main {
     public static void main(String[] args) {
         List<String[]> locations = getLocations();
-        int distance = 0;
+        AtomicInteger similarityScore = new AtomicInteger();
         ArrayList<String> leftList = new ArrayList<>();
         ArrayList<String> rightList = new ArrayList<>();
 
         locations.forEach(location -> leftList.add(location[0]));
         locations.forEach(location -> rightList.add(location[1]));
 
-        leftList.sort((a, b) -> { return -1 * b.compareTo(a); });
-        rightList.sort((a, b) -> { return -1 * b.compareTo(a); });
-        for (int i = 0; i < leftList.size(); i++) {
-            int leftVal = Integer.parseInt(leftList.get(i));
-            int rightVal = Integer.parseInt(rightList.get(i));
-            distance += Math.abs(leftVal - rightVal);
-        }
-        System.out.println(distance);
+        leftList.forEach(location -> {
+            int locationId = Integer.parseInt(location);
+            int numberOfSimilarLocations = (int) rightList.stream().filter(rightLocationId -> rightLocationId.equals(location)).count();
+            similarityScore.addAndGet(locationId * numberOfSimilarLocations);
+        });
+
+        System.out.println(similarityScore.get());
     }
 
     public static ArrayList<String[]> getLocations() {
